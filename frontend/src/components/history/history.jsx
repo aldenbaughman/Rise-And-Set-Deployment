@@ -1,0 +1,81 @@
+import './history.css'
+
+import { useState, useEffect } from 'react'
+
+
+import List from '@mui/material/List';
+import ListItemButton from '@mui/material/ListItemButton';
+
+
+
+
+function History(){
+    var[historyElem, setHistoryElem] = useState([])
+    var [dbHistory, setDbHistory] = useState([])
+
+    //add onclick here to function in map that sets lat long and location!!!!!!!!!!!
+    function HistoryElement({latitude, longitude, location}){
+        return (
+            <>
+            <button className ='historyElement'>
+                
+                    <p>LAT: {latitude}</p>
+                    <p>LONG: {longitude}</p>
+                    <p>LOCATION: {location}</p>
+            </button>
+            </>
+        )
+    }
+
+    //Use effect every time history sidebar is toggled
+    useEffect(() =>{
+        fetch('http://https://rise-and-set-afabb899261f.herokuapp.com/:8888/history')
+            .then(res => res.json())
+            .then(data => {
+                let newDbHistory = []
+                    for (let i = 0; i < data.length; i++){
+                        newDbHistory.push(data[i])
+                    }
+                    setDbHistory(newDbHistory)
+                    console.log(dbHistory)
+            })
+    }, [])
+
+    function clearHistory(){
+            try{
+                console.log('[BACKEND] Deleting History')
+                const response = fetch('https://rise-and-set-afabb899261f.herokuapp.com/:8888/clear')
+                console.log('[BACKEND] History Deleted')
+                console.log(response)
+    
+                if (!response.ok){
+                    throw new Error('Oops, something went wrong w/ response while deleting history')
+                }
+            }catch (error){
+                console.error(error)
+                return 'Oops, something went wrong! with entire thing'
+            }
+            
+        }
+
+    return (
+        <>
+        <div className="sidebar">
+            <h2>History</h2>
+            <button id="clearButton" onClick= {() => clearHistory()}>
+                Clear History
+            </button>
+            <div className='historyScroll'>
+                {dbHistory.map((object) => {
+                    return(<HistoryElement latitude = {object.latitude}
+                        longitude = {object.longitude}
+                        location = {object.location}/>)
+                })}
+            </div>
+        </div>
+        </>
+    )
+}
+
+
+export default History
